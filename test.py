@@ -1,79 +1,37 @@
-import unittest
-from selenium import webdriver
-import requests
-import os
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-
-class LoginForm(unittest.TestCase):
-    def setUp(self):
-
-        # Put your username and authkey below
-        # You can find your authkey at crossbrowsertesting.com/account
-        self.username = os.environ.get('CBT_USERNAME')
-        self.authkey  = os.environ.get('CBT_AUTHKEY')
-
-        self.api_session = requests.Session()
-        self.api_session.auth = (self.username,self.authkey)
-
-        self.test_result = None
-
-        caps = {}
-
-        caps['name'] = 'Github Actions Example'
-        caps['browserName'] = 'Chrome'
-        caps['platform'] = 'Windows 10'
-        caps['screenResolution'] = '1366x768'
-        caps['username'] = self.username
-        caps['password'] = self.authkey
-        caps['record_video'] = 'true'
-
-        self.driver = webdriver.Remote(
-            desired_capabilities=caps,
-            #command_executor="http://%s:%s@hub.crossbrowsertesting.com:80/wd/hub"%(self.username,self.authkey)
-            command_executor="http://hub.crossbrowsertesting.com:80/wd/hub"
-        )
-
-        self.driver.implicitly_wait(20)
-
-    def test_CBT(self):
-    
-        try:
-            self.driver.get('http://crossbrowsertesting.github.io/login-form.html')
-            self.driver.maximize_window()
-            self.driver.find_element_by_name('username').send_keys('tester@crossbrowsertesting.com')
-            self.driver.find_element_by_name('password').send_keys('test123')
-            self.driver.find_element_by_css_selector('body > div > div > div > div > form > div.form-actions > button').click()
-
-            elem = WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((By.XPATH, '//*[@id=\"logged-in-message\"]/h2'))
-            )
-
-            welcomeText = elem.text
-            self.assertEqual("Welcome tester@crossbrowsertesting.com", welcomeText)
-
-            print("Taking snapshot")
-            snapshot_hash = self.api_session.post('https://crossbrowsertesting.com/api/v3/selenium/' + self.driver.session_id + '/snapshots').json()['hash']
-
-            self.test_result = 'pass'
-
-        except AssertionError as e:
-            # log the error message, and set the score to "during tearDown()".
-            self.api_session.put('https://crossbrowsertesting.com/api/v3/selenium/' + self.driver.session_id + '/snapshots/' + snapshot_hash,
-                data={'description':"AssertionError: " + str(e)})
-            self.test_result = 'fail'
-            raise
-
-    def tearDown(self):
-        print("Done with session %s" % self.driver.session_id)
-        self.driver.quit()
-        # Here we make the api call to set the test's score.
-        # Pass it it passes, fail if an assertion fails, unset if the test didn't finish
-        if self.test_result is not None:
-            self.api_session.put('https://crossbrowsertesting.com/api/v3/selenium/' + self.driver.session_id,
-                data={'action':'set_score', 'score':self.test_result})
+from selenium import webdriver 
+from selenium.webdriver.common.keys import Keys
+ # imports the selenium webdriver
 
 
-if __name__ == '__main__':
-    unittest.main()
+def test_get_title():
+    PATH = "C:/Program Files (x86)/chromedriver.exe"  # the starting url
+    driver = webdriver.Chrome(PATH)  # initialise a driver that is using the chrome driver for selenium
+    driver.get("file:///C:/Users/tunde/Desktop/Dufuna-CodeCamp20/submissions/cynthiaNwakaeme/HTML/index.html")  # redirects the driver to that url path
+
+    assert "" in driver.title 
+
+    driver.find_element_by_link_text("Product Page").click() #test navigation links
+    driver.find_element_by_id("quantityNumber").send_keys("1")	
+    driver.find_element_by_id("buyNow").click()
+    driver.find_element_by_id("newsletter").send_keys("ire@mail")
+    driver.find_element_by_id("requiredField").submit()
+    driver.find_element_by_link_text("Contact Us").click()
+    driver.find_element_by_id("fullName").send_keys("Arinola Badejo")
+    driver.find_element_by_id("email").send_keys("remi@mail")
+    driver.find_element_by_id("order_id").send_keys("56")
+    driver.find_element_by_id("subject").send_keys("Customer")
+    driver.find_element_by_id("description").send_keys("New Customer")
+    driver.find_element_by_id("validateForm").submit()
+    driver.find_element_by_link_text("Register").click()
+    driver.find_element_by_id("firstName").send_keys("Arinola Badejo")
+    driver.find_element_by_id("lastName").send_keys("remi@mail")
+    driver.find_element_by_id("otherName").send_keys("56")
+    driver.find_element_by_id("phoneNumber").send_keys("Customer")
+    driver.find_element_by_id("email").send_keys("Customer")
+    driver.find_element_by_id("password").send_keys("Customer")
+    driver.find_element_by_id("confirmPassword").send_keys("Customer")
+    driver.find_element_by_id("terms-conditions").click()
+    driver.find_element_by_id("submit_form").submit()
+    driver.close()  # closes the browser once it has completed
+
+test_get_titile()
